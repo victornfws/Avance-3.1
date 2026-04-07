@@ -19,15 +19,15 @@ def render_maze(maze, path=None):
         display_row = []
         for c_idx, col in enumerate(row):
             if (r_idx, c_idx) == START:
-                display_row.append("ðŸš€") # Inicio
+                display_row.append("🧑") # Inicio
             elif (r_idx, c_idx) == END:
-                display_row.append("ðŸ") # Fin
+                display_row.append("🏁") # Fin
             elif (r_idx, c_idx) in path:
-                display_row.append("ðŸ”¹") # Camino resuelto
+                display_row.append("🔹") # Camino resuelto
             elif col == 1:
-                display_row.append("â¬›") # Muro
+                display_row.append("⬜") # Muro
             else:
-                display_row.append("â¬œ") # Camino libre
+                display_row.append("⬛") # Camino libre
         display_maze.append("".join(display_row))
     
     st.markdown("<br>".join(display_maze), unsafe_allow_html=True)
