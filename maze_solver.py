@@ -1,7 +1,7 @@
 import collections
 
 def solve_maze_bfs(maze, start, end):
-    """Resuelve el laberinto usando el algoritmo de BÃºsqueda en Amplitud (BFS)."""
+    """Resuelve el laberinto usando el algoritmo de Busqueda en Amplitud (BFS)."""
     rows, cols = len(maze), len(maze[0])
     queue = collections.deque([(start, [start])])
     visited = set()
@@ -24,11 +24,11 @@ def solve_maze_bfs(maze, start, end):
                 new_path.append((next_row, next_col))
                 queue.append(((next_row, next_col), new_path))
     
-    return None # No se encontrÃ³ camino
+    return None # No se encontro camino
 
-# Puedes implementar DFS de manera similar, usando una lista como pila (o recursiÃ³n).
+# Puedes implementar DFS de manera similar, usando una lista como pila (o recursion).
 
-# RepresentaciÃ³n del laberinto (0: camino libre, 1: muro, 2: inicio, 3: fin)
+# Representacion del laberinto (0: camino libre, 1: muro, 2: inicio, 3: fin)
 # Un laberinto de ejemplo:
 
 MAZE=[

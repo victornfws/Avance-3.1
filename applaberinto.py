@@ -2,16 +2,16 @@ import streamlit as st
 import pandas as pd
 from maze_solver import MAZE, START, END, solve_maze_bfs
 
-st.title("Visualizador de Algoritmo de BÃºsqueda en Laberinto")
+st.title("Visualizador de Algoritmo de Busqueda de Laberinto")
 
-# FunciÃ³n para renderizar el laberinto
+# Funcion para renderizar el laberinto
 def render_maze(maze, path=None):
     if path is None:
         path = []
     
-    # Convertir el laberinto a un formato que Streamlit pueda mostrar fÃ¡cilmente,
+    # Convertir el laberinto a un formato que Streamlit pueda mostrar facilmente,
     # por ejemplo, una tabla o usando st.markdown con emojis/colores.
-    # Para una mejor visualizaciÃ³n interactiva, podrÃ­as usar bibliotecas como Pygame o Plotly, 
+    # Para una mejor visualizacion interactiva, podrias usar bibliotecas como Pygame o Plotly, 
     # pero para un inicio, un enfoque simple es suficiente.
 
     display_maze = []
