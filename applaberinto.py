@@ -45,7 +45,7 @@ if solve_button:
     if algorithm == "BFS":
         path = solve_maze_bfs(MAZE, START, END)
         if path:
-           st.success(f"¡Camino encontrado con {algorithm}!")
+           st.success(f"¡Camino encontrado con {algorithm}, se recorrieron {len(path)}!")
            render_maze(MAZE, path)
         else:
             st.error("No se encontro un camino.")
