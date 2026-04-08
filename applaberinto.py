@@ -1,53 +1,64 @@
 import streamlit as st
-import pandas as pd
-from maze_solver import MAZE, START, END, solve_maze_bfs
+import numpy as np
+from collections import deque
+import time
+import re
 
-st.title("Visualizador de Algoritmo de Busqueda de Laberinto")
+def solve_maze(maze, start, end):
+    start_time = time.time()
+    queue = deque([(start, [start])])
+    visited = {start}
+    while queue:
+        (r, c), path = queue.popleft()
+        if (r, c) == end:
+            return path, (time.time() - start_time)
+        for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < maze.shape[0] and 0 <= nc < maze.shape[1]:
+                if maze[nr, nc] != 1 and (nr, nc) not in visited:
+                    visited.add((nr, nc))
+                    queue.append(((nr, nc), path + [(nr, nc)]))
+    return None, 0
 
-# Funcion para renderizar el laberinto
-def render_maze(maze, path=None):
-    if path is None:
-        path = []
+st.title("Cargador de Laberintos")
+
+archivo = st.file_uploader("Sube tu archivo .txt con el laberinto", type=["txt"])
+
+if archivo:
+    content = archivo.read().decode("utf-8")
+    lines = content.strip().split('\n')
     
-    # Convertir el laberinto a un formato que Streamlit pueda mostrar facilmente,
-    # por ejemplo, una tabla o usando st.markdown con emojis/colores.
-    # Para una mejor visualizacion interactiva, podrias usar bibliotecas como Pygame o Plotly, 
-    # pero para un inicio, un enfoque simple es suficiente.
+    maze_data = []
+    for line in lines:
+        row = [int(d) for d in re.findall(r'\d', line)]
+        if row: maze_data.append(row)
+    
+    maze_np = np.array(maze_data)
+    
+    p2 = np.where(maze_np == 2)
+    p3 = np.where(maze_np == 3)
 
-    display_maze = []
-    for r_idx, row in enumerate(maze):
-        display_row = []
-        for c_idx, col in enumerate(row):
-            if (r_idx, c_idx) == START:
-                display_row.append("🧑") # Inicio
-            elif (r_idx, c_idx) == END:
-                display_row.append("🏁") # Fin
-            elif (r_idx, c_idx) in path:
-                display_row.append("🔹") # Camino resuelto
-            elif col == 1:
-                display_row.append("⬜") # Muro
+    if p2[0].size > 0 and p3[0].size > 0:
+        start = (p2[0][0], p2[1][0])
+        end = (p3[0][0], p3[1][0])
+          
+        if st.button("Resolver Laberinto Cargado"):
+            ruta, tiempo = solve_maze(maze_np, start, end)
+            
+            if ruta:
+                st.success(f"Resuelto en {tiempo:.6f} segundos. Pasos: {len(ruta)}")
+                for r in range(maze_np.shape[0]):
+                    fila_str = ""
+                    for c in range(maze_np.shape[1]):
+                        if (r, c) == start: fila_str += "🧑"
+                        elif (r, c) == end: fila_str += "🏁"
+                        elif (r, c) in ruta: fila_str += "⬛"
+                        elif maze_np[r, c] == 1: fila_str += "⬜"
+                        else: fila_str += "🔹"
+                    st.text(fila_str)
             else:
-                display_row.append("⬛") # Camino libre
-        display_maze.append("".join(display_row))
-    
-    st.markdown("<br>".join(display_maze), unsafe_allow_html=True)
-
-
-# Sidebar para controles
-st.sidebar.header("Opciones")
-algorithm = st.sidebar.selectbox("Selecciona el algoritmo", ["BFS", "DFS (no implementado)", "A* (no implementado)"])
-solve_button = st.sidebar.button("Resolver Laberinto")
-
-render_maze(MAZE)
-
-
-if solve_button:
-    if algorithm == "BFS":
-        path = solve_maze_bfs(MAZE, START, END)
-        if path:
-           st.success(f"¡Camino encontrado con {algorithm}, se recorrieron {len(path)} casillas!")
-           render_maze(MAZE, path)
-        else:
-            st.error("No se encontro un camino.")
+                st.error("No se encontrÃ³ una ruta vÃ¡lida.")
     else:
-        st.warning(f"El algoritmo {algorithm} aun no esta implementado. Usa BFS.")
+        st.warning("El archivo debe contener un '2' (inicio) y un '3' (fin).")
+else:
+    st.info("Esperando archivo...")
