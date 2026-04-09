@@ -35,7 +35,7 @@ if archivo:
     maze_data = []
 
     for line in lines:
-        row = [int(d) for d in re.findall(r'\d+', line)]  # <-- fix aqui
+        row = [int(d) for d in re.findall(r'\d', line)]  # <-- fix aqui
         if row:
             maze_data.append(row)
 
