@@ -30,7 +30,7 @@ if archivo:
     
     maze_data = []
     for line in lines:
-        row = [int(d) for d in re.findall(r'\d', line)]
+        row = [int(d) for d in re.findall(r, line)]
         if row: maze_data.append(row)
     
     maze_np = np.array(maze_data)
@@ -57,7 +57,7 @@ if archivo:
                         else: fila_str += "🔹"
                     st.text(fila_str)
             else:
-                st.error("No se encontrÃ³ una ruta vÃ¡lida.")
+                st.error("No se encontro una ruta valida.")
     else:
         st.warning("El archivo debe contener un '2' (inicio) y un '3' (fin).")
 else:
