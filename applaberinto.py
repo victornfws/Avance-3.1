@@ -1,11 +1,9 @@
 import streamlit as st
 import numpy as np
 from collections import deque
-from maze_solver import MAZE, START, END, solve_maze_bfs
 import time
 import re
 
-# --- BFS para laberintos cargados desde txt (usa numpy) ---
 def solve_maze_np(maze, start, end):
     start_time = time.time()
     queue = deque([(start, [start])])
@@ -22,28 +20,6 @@ def solve_maze_np(maze, start, end):
                     queue.append(((nr, nc), path + [(nr, nc)]))
     return None, 0
 
-# --- Render para laberinto hardcoded (usa START/END globales) ---
-def render_maze(maze, path=None):
-    if path is None:
-        path = []
-    filas = []
-    for r_idx, row in enumerate(maze):
-        fila_str = ""
-        for c_idx, col in enumerate(row):
-            if (r_idx, c_idx) == START:
-                fila_str += "🧑"
-            elif (r_idx, c_idx) == END:
-                fila_str += "🏁"
-            elif (r_idx, c_idx) in path:
-                fila_str += "🔹"
-            elif col == 1:
-                fila_str += "⬜"
-            else:
-                fila_str += "⬛"
-        filas.append(fila_str)
-    st.markdown("<br>".join(filas), unsafe_allow_html=True)
-
-# --- UI ---
 st.title("Visualizador de Algoritmo de Busqueda de Laberinto")
 
 st.sidebar.header("Opciones")
@@ -51,25 +27,7 @@ algorithm = st.sidebar.selectbox("Selecciona el algoritmo", ["BFS", "DFS (no imp
 solve_button = st.sidebar.button("Resolver Laberinto")
 archivo = st.sidebar.file_uploader("Cargar laberinto (.txt)", type=["txt"])
 
-# --- Modo 1: laberinto hardcoded ---
-if not archivo:
-    st.subheader("Laberinto predeterminado")
-    render_maze(MAZE)
-
-    if solve_button:
-        if algorithm == "BFS":
-            path = solve_maze_bfs(MAZE, START, END)
-            if path:
-                st.success(f"Camino encontrado con {algorithm}, se recorrieron {len(path)} casillas!")
-                render_maze(MAZE, path)
-            else:
-                st.error("No se encontro un camino.")
-        else:
-            st.warning(f"El algoritmo {algorithm} aun no esta implementado. Usa BFS.")
-
-# --- Modo 2: laberinto desde txt ---
-else:
-    st.subheader("Laberinto cargado desde archivo")
+if archivo:
     content = archivo.read().decode("utf-8")
     lines = content.strip().split('\n')
 
@@ -87,15 +45,14 @@ else:
         start = (int(p2[0][0]), int(p2[1][0]))
         end   = (int(p3[0][0]), int(p3[1][0]))
 
-        # Render inicial sin solución
         filas = []
         for r in range(maze_np.shape[0]):
             fila_str = ""
             for c in range(maze_np.shape[1]):
-                if (r, c) == start:        fila_str += "🧑"
-                elif (r, c) == end:        fila_str += "🏁"
-                elif maze_np[r, c] == 1:   fila_str += "⬜"
-                else:                      fila_str += "⬛"
+                if (r, c) == start:      fila_str += "🧑"
+                elif (r, c) == end:      fila_str += "🏁"
+                elif maze_np[r, c] == 1: fila_str += "⬜"
+                else:                    fila_str += "⬛"
             filas.append(fila_str)
         st.markdown("<br>".join(filas), unsafe_allow_html=True)
 
@@ -121,3 +78,5 @@ else:
                 st.warning(f"El algoritmo {algorithm} aun no esta implementado. Usa BFS.")
     else:
         st.warning("El archivo debe contener un '2' (inicio) y un '3' (fin).")
+else:
+    st.info("Esperando archivo...")
