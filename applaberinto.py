@@ -24,8 +24,8 @@ st.title("Visualizador de Algoritmo de Busqueda de Laberinto")
 
 st.sidebar.header("Opciones")
 algorithm = st.sidebar.selectbox("Selecciona el algoritmo", ["BFS", "DFS (no implementado)", "A* (no implementado)"])
-solve_button = st.sidebar.button("Resolver Laberinto")
 archivo = st.sidebar.file_uploader("Cargar laberinto (.txt)", type=["txt"])
+solve_button = st.sidebar.button("Resolver Laberinto")
 
 if archivo:
     content = archivo.read().decode("utf-8")
