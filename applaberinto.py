@@ -35,7 +35,7 @@ if archivo:
     maze_data = []
 
     for line in lines:
-        row = [int(d) for d in re.findall(r'\d', line)]  # <-- fix aqui
+        row = [int(d) for d in re.findall(r'\d', line)]
         if row:
             maze_data.append(row)
 
@@ -53,20 +53,23 @@ if archivo:
             if ruta:
                 st.success(f"Resuelto en {tiempo:.6f} segundos. Pasos: {len(ruta)}")
 
-                for r in range(maze_np.shape[0]):
-                    fila_str = ""
-                    for c in range(maze_np.shape[1]):
-                        if (r, c) == start:
-                            fila_str += "🧑"
-                        elif (r, c) == end:
-                            fila_str += "🏁"
-                        elif (r, c) in ruta:
-                            fila_str += "⬛"
-                        elif maze_np[r, c] == 1:
-                            fila_str += "⬜"
-                        else:
-                            fila_str += "🔹"
-                    st.text(fila_str)
+            filas = []
+            for r in range(maze_np.shape[0]):
+                fila_str = ""
+                for c in range(maze_np.shape[1]):
+                    if (r, c) == start:
+                        fila_str += "🧑"
+                    elif (r, c) == end:
+                        fila_str += "🏁"
+                    elif (r, c) in ruta:
+                        fila_str += "⬛"
+                    elif maze_np[r, c] == 1:
+                        fila_str += "⬜"
+                    else:
+                        fila_str += "🔹"
+                filas.append(fila_str)
+                
+                st.markdown("<br>".join(filas), unsafe_allow_html=True)
             else:
                 st.error("No se encontro una ruta valida.")
     else:
