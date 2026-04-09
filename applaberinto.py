@@ -62,11 +62,11 @@ if archivo:
                     elif (r, c) == end:
                         fila_str += "🏁"
                     elif (r, c) in ruta:
-                        fila_str += "⬛"
+                        fila_str += "🔹"
                     elif maze_np[r, c] == 1:
                         fila_str += "⬜"
                     else:
-                        fila_str += "🔹"
+                        fila_str += "⬛"
                 filas.append(fila_str)
                 
                 st.markdown("<br>".join(filas), unsafe_allow_html=True)
