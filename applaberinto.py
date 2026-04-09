@@ -30,7 +30,7 @@ if archivo:
     
     maze_data = []
     for line in lines:
-        row = [int(d) for d in re.findall(r, line)]
+        row = [int(d) for d in re.findall(r'', line)]
         if row: maze_data.append(row)
     
     maze_np = np.array(maze_data)
