@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 from collections import deque
+import heapq
 import time
 import re
 
@@ -37,6 +38,44 @@ def solve_maze_dfs(maze, start, end):
                     stack.append(((nr, nc), path + [(nr, nc)]))
     return None, 0
 
+def heuristica(a, b):
+    # Distancia Manhattan: suma de diferencias absolutas en filas y columnas
+    # Es admisible para grids con movimiento en 4 direcciones (nunca sobreestima)
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+def solve_maze_astar(maze, start, end):
+    start_time = time.time()
+
+    # Cada entrada en el heap: (f, g, nodo, path)
+    # f = g + h  →  costo real acumulado + estimacion heuristica al destino
+    # g = pasos dados hasta ahora (costo uniforme, cada celda vale 1)
+    h_inicial = heuristica(start, end)
+    heap = [(h_inicial, 0, start, [start])]
+    # g_costos guarda el menor costo conocido para llegar a cada nodo
+    g_costos = {start: 0}
+
+    while heap:
+        f, g, (r, c), path = heapq.heappop(heap)
+
+        if (r, c) == end:
+            return path, (time.time() - start_time)
+
+        # Si ya encontramos un camino mas barato a este nodo, ignorar
+        if g > g_costos.get((r, c), float('inf')):
+            continue
+
+        for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < maze.shape[0] and 0 <= nc < maze.shape[1]:
+                if maze[nr, nc] != 1:
+                    nuevo_g = g + 1
+                    if nuevo_g < g_costos.get((nr, nc), float('inf')):
+                        g_costos[(nr, nc)] = nuevo_g
+                        nuevo_f = nuevo_g + heuristica((nr, nc), end)
+                        heapq.heappush(heap, (nuevo_f, nuevo_g, (nr, nc), path + [(nr, nc)]))
+
+    return None, 0
+
 def render_maze(maze_np, start, end, ruta_set=None):
     filas = []
     for r in range(maze_np.shape[0]):
@@ -58,7 +97,7 @@ def render_maze(maze_np, start, end, ruta_set=None):
 st.title("Visualizador de Algoritmo de Busqueda de Laberinto")
 
 st.sidebar.header("Opciones")
-algorithm = st.sidebar.selectbox("Selecciona el algoritmo", ["BFS", "DFS", "A* (no implementado)"])
+algorithm = st.sidebar.selectbox("Selecciona el algoritmo", ["BFS", "DFS", "A*"])
 archivo = st.sidebar.file_uploader("Cargar laberinto (.txt)", type=["txt"])
 solve_button = st.sidebar.button("Resolver Laberinto")
 
@@ -87,18 +126,17 @@ if archivo:
                 ruta, tiempo = solve_maze_bfs(maze_np, start, end)
             elif algorithm == "DFS":
                 ruta, tiempo = solve_maze_dfs(maze_np, start, end)
+            elif algorithm == "A*":
+                ruta, tiempo = solve_maze_astar(maze_np, start, end)
             else:
-                st.warning(f"El algoritmo {algorithm} aun no esta implementado. Usa BFS o DFS.")
                 ruta = None
 
-            if algorithm in ("BFS", "DFS"):
-                if ruta:
-                    # Convertir a set para busqueda O(1) al renderizar
-                    ruta_set = set(ruta)
-                    st.success(f"[{algorithm}] Resuelto en {tiempo:.6f} segundos. Casillas recorridas: {len(ruta)}")
-                    render_maze(maze_np, start, end, ruta_set)
-                else:
-                    st.error("No se encontro una ruta valida.")
+            if ruta:
+                ruta_set = set(ruta)
+                st.success(f"[{algorithm}] Resuelto en {tiempo:.6f} segundos. Casillas recorridas: {len(ruta)}")
+                render_maze(maze_np, start, end, ruta_set)
+            else:
+                st.error("No se encontro una ruta valida.")
     else:
         st.warning("El archivo debe contener un '2' (inicio) y un '3' (fin).")
 else:
