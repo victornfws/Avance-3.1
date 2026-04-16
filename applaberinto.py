@@ -7,18 +7,38 @@ import re
 
 def solve_maze_bfs(maze, start, end):
     start_time = time.time()
-    queue = deque([(start, [start])])
-    visited = {start}
+    # Solo guardamos el nodo actual en la cola
+    queue = deque([start])
+    # parent nos servirá para reconstruir el camino y actuar como 'visited'
+    parent = {start: None}
+    
+    found = False
     while queue:
-        (r, c), path = queue.popleft()
-        if (r, c) == end:
-            return path, (time.time() - start_time)
+        curr = queue.popleft()
+        
+        if curr == end:
+            found = True
+            break
+            
+        r, c = curr
         for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
             nr, nc = r + dr, c + dc
+            
             if 0 <= nr < maze.shape[0] and 0 <= nc < maze.shape[1]:
-                if maze[nr, nc] != 1 and (nr, nc) not in visited:
-                    visited.add((nr, nc))
-                    queue.append(((nr, nc), path + [(nr, nc)]))
+                # Si no es pared y no lo hemos visitado
+                if maze[nr, nc] != 1 and (nr, nc) not in parent:
+                    parent[(nr, nc)] = curr
+                    queue.append((nr, nc))
+    
+    if found:
+        # Reconstruimos la ruta desde el final hacia atrás
+        path = []
+        paso = end
+        while paso is not None:
+            path.append(paso)
+            paso = parent[paso]
+        return path[::-1], (time.time() - start_time) # Volteamos la ruta
+        
     return None, 0
 
 def solve_maze_dfs(maze, start, end):
