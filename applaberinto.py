@@ -81,7 +81,7 @@ def render_maze(maze, start, end, path=None, visited=None):
             elif (r, c) in path:
                 fila_str += "🔹"   # camino final
             elif (r, c) in visited:
-                fila_str += "🟡"   # explorado
+                fila_str += "⬛"   # explorado
             elif maze[r, c] == 1:
                 fila_str += "⬜"   # muro
             else:
@@ -96,15 +96,6 @@ st.sidebar.header("Opciones")
 archivo = st.sidebar.file_uploader("Cargar laberinto (.txt)", type=["txt"])
 solve_button = st.sidebar.button("Resolver con los 3 algoritmos")
 
-st.sidebar.markdown("""
-**Leyenda**
-- 🟢 Inicio
-- 🏁 Fin
-- 🔹 Camino final
-- 🟡 Nodos explorados
-- ⬜ Muro
-- ⬛ Libre
-""")
 
 if archivo:
     content = archivo.read().decode("utf-8")
