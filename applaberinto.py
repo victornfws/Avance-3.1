@@ -75,13 +75,13 @@ def render_maze(maze, start, end, path=None, visited=None):
         fila_str = ""
         for c in range(maze.shape[1]):
             if (r, c) == start:
-                fila_str += "🟢"
+                fila_str += "🧑"
             elif (r, c) == end:
                 fila_str += "🏁"
             elif (r, c) in path:
                 fila_str += "🔹"
             elif (r, c) in visited:
-                fila_str += "🟡"
+                fila_str += "🟪"
             elif maze[r, c] == 1:
                 fila_str += "⬜"
             else:
