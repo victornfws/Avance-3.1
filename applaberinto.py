@@ -98,11 +98,11 @@ solve_button = st.sidebar.button("Resolver Laberinto")
 archivo = st.sidebar.file_uploader("Cargar laberinto (.txt)", type=["txt"])
 
 st.sidebar.markdown("""
-**Leyenda**
-- 🟢 Inicio
+**Iconos**
+- 🧑 Inicio
 - 🏁 Fin
-- 🔹 Camino final
-- 🟡 Nodos explorados
+- 🔹 Ruta final
+- 🟪 Nodos explorados
 - ⬜ Muro
 - ⬛ Libre
 """)
