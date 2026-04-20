@@ -43,19 +43,23 @@ def solve_maze_bfs(maze, start, end):
 
 def solve_maze_dfs(maze, start, end):
     start_time = time.time()
-    # Usa una pila (stack): append + pop -> LIFO, a diferencia de BFS que usa popleft -> FIFO
-    stack = [(start, [start])]
-    visited = {start}
+    stack = [start]
+    parent = {start: None}
     while stack:
-        (r, c), path = stack.pop()
+        r, c = stack.pop()
         if (r, c) == end:
-            return path, (time.time() - start_time)
+            path = []
+            paso = end
+            while paso is not None:
+                path.append(paso)
+                paso = parent[paso]
+            return path[::-1], (time.time() - start_time)
         for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
             nr, nc = r + dr, c + dc
             if 0 <= nr < maze.shape[0] and 0 <= nc < maze.shape[1]:
-                if maze[nr, nc] != 1 and (nr, nc) not in visited:
-                    visited.add((nr, nc))
-                    stack.append(((nr, nc), path + [(nr, nc)]))
+                if maze[nr, nc] != 1 and (nr, nc) not in parent:
+                    parent[(nr, nc)] = (r, c)
+                    stack.append((nr, nc))
     return None, 0
 
 def heuristica(a, b):
@@ -157,6 +161,9 @@ if archivo:
                 render_maze(maze_np, start, end, ruta_set)
             else:
                 st.error("No se encontro una ruta valida.")
+                render_maze(maze_np, start, end)
+        else:
+            render_maze(maze_np, start, end)
     else:
         st.warning("El archivo debe contener un '2' (inicio) y un '3' (fin).")
 else:
