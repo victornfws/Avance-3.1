@@ -116,8 +116,7 @@ def render_maze(maze_np, start, end, ruta_set=None):
             else:
                 fila_str += "⬛"
         filas.append(fila_str)
-    for fila in filas:
-        st.text(fila)
+    st.markdown("<br>".join(filas), unsafe_allow_html=True)
 
 st.title("Visualizador de Algoritmo de Busqueda de Laberinto")
 
