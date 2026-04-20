@@ -22,7 +22,7 @@ def solve_bfs(maze, start, end):
                     queue.append(((nr, nc), path + [(nr, nc)]))
     return None, visited, (time.time() - start_time)
 
-# --- DFS (orden fijo: arriba, abajo, izquierda, derecha — sin heurística) ---
+# --- DFS ---
 def solve_dfs(maze, start, end):
     start_time = time.time()
     stack = [(start, [start])]
@@ -34,7 +34,7 @@ def solve_dfs(maze, start, end):
         visited.add((r, c))
         if (r, c) == end:
             return path, visited, (time.time() - start_time)
-        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  # arriba, abajo, izq, der
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             nr, nc = r + dr, c + dc
             if 0 <= nr < maze.shape[0] and 0 <= nc < maze.shape[1]:
                 if maze[nr, nc] != 1 and (nr, nc) not in visited:
@@ -45,7 +45,7 @@ def solve_dfs(maze, start, end):
 def solve_astar(maze, start, end):
     start_time = time.time()
     def h(a, b):
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])  # Manhattan
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
     open_set = [(h(start, end), 0, start, [start])]
     visited = set()
     g_score = {start: 0}
@@ -66,7 +66,7 @@ def solve_astar(maze, start, end):
                         heapq.heappush(open_set, (ng + h((nr, nc), end), ng, (nr, nc), path + [(nr, nc)]))
     return None, visited, (time.time() - start_time)
 
-# --- Render con visited y path ---
+# --- Render ---
 def render_maze(maze, start, end, path=None, visited=None):
     path = set(path) if path else set()
     visited = visited or set()
@@ -75,27 +75,37 @@ def render_maze(maze, start, end, path=None, visited=None):
         fila_str = ""
         for c in range(maze.shape[1]):
             if (r, c) == start:
-                fila_str += "🟢"   # inicio
+                fila_str += "🟢"
             elif (r, c) == end:
-                fila_str += "🏁"   # fin
+                fila_str += "🏁"
             elif (r, c) in path:
-                fila_str += "🔹"   # camino final
+                fila_str += "🔹"
             elif (r, c) in visited:
-                fila_str += "⬛"   # explorado
+                fila_str += "🟡"
             elif maze[r, c] == 1:
-                fila_str += "⬜"   # muro
+                fila_str += "⬜"
             else:
-                fila_str += "⬛"   # libre
+                fila_str += "⬛"
         filas.append(fila_str)
-    st.markdown("<br>".join(filas), unsafe_allow_html=True)
+    st.text("\n".join(filas))
 
 # --- UI ---
 st.title("Visualizador de Algoritmos de Búsqueda en Laberinto")
 
 st.sidebar.header("Opciones")
+algorithm = st.sidebar.selectbox("Selecciona el algoritmo", ["BFS", "DFS", "A*"])
+solve_button = st.sidebar.button("Resolver Laberinto")
 archivo = st.sidebar.file_uploader("Cargar laberinto (.txt)", type=["txt"])
-solve_button = st.sidebar.button("Resolver con los 3 algoritmos")
 
+st.sidebar.markdown("""
+**Leyenda**
+- 🟢 Inicio
+- 🏁 Fin
+- 🔹 Camino final
+- 🟡 Nodos explorados
+- ⬜ Muro
+- ⬛ Libre
+""")
 
 if archivo:
     content = archivo.read().decode("utf-8")
@@ -114,47 +124,17 @@ if archivo:
         start = (int(p2[0][0]), int(p2[1][0]))
         end   = (int(p3[0][0]), int(p3[1][0]))
 
-        # Mostrar laberinto sin resolver
-        st.subheader("Laberinto cargado")
         render_maze(maze_np, start, end)
 
         if solve_button:
-            bfs_path,   bfs_vis,   bfs_t   = solve_bfs(maze_np, start, end)
-            dfs_path,   dfs_vis,   dfs_t   = solve_dfs(maze_np, start, end)
-            astar_path, astar_vis, astar_t = solve_astar(maze_np, start, end)
+            solvers = {"BFS": solve_bfs, "DFS": solve_dfs, "A*": solve_astar}
+            path, visited, tiempo = solvers[algorithm](maze_np, start, end)
 
-            st.subheader("Comparación de algoritmos")
-            col1, col2, col3 = st.columns(3)
-
-            with col1:
-                st.markdown("### BFS")
-                if bfs_path:
-                    st.success(f"Pasos: {len(bfs_path)}")
-                    st.info(f"Explorados: {len(bfs_vis)}")
-                    st.caption(f"Tiempo: {bfs_t:.6f}s")
-                    render_maze(maze_np, start, end, bfs_path, bfs_vis)
-                else:
-                    st.error("Sin solución")
-
-            with col2:
-                st.markdown("### DFS")
-                if dfs_path:
-                    st.success(f"Pasos: {len(dfs_path)}")
-                    st.info(f"Explorados: {len(dfs_vis)}")
-                    st.caption(f"Tiempo: {dfs_t:.6f}s")
-                    render_maze(maze_np, start, end, dfs_path, dfs_vis)
-                else:
-                    st.error("Sin solución")
-
-            with col3:
-                st.markdown("### A*")
-                if astar_path:
-                    st.success(f"Pasos: {len(astar_path)}")
-                    st.info(f"Explorados: {len(astar_vis)}")
-                    st.caption(f"Tiempo: {astar_t:.6f}s")
-                    render_maze(maze_np, start, end, astar_path, astar_vis)
-                else:
-                    st.error("Sin solución")
+            if path:
+                st.success(f"**{algorithm}** — Pasos: {len(path)} | Explorados: {len(visited)} | Tiempo: {tiempo:.6f}s")
+                render_maze(maze_np, start, end, path, visited)
+            else:
+                st.error("No se encontró una ruta válida.")
     else:
         st.warning("El archivo debe contener un '2' (inicio) y un '3' (fin).")
 else:
